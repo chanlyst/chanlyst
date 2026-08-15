@@ -23,7 +23,7 @@
 
 import { createServer } from "node:http";
 import { readdirSync, readFileSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { Log, LogLevel, Miniflare } from "miniflare";
 
 function argument(name, fallback = "") {
@@ -65,7 +65,33 @@ const serverDir = resolve(configPath, "..");
 const port = Number(argument("port", "3000"));
 const host = argument("ip", "127.0.0.1");
 const persistTo = argument("persist-to", "");
-const bindings = readEnvFile(argument("env-file", ""));
+/**
+ * Configuration the worker gets, from the two places it can arrive.
+ *
+ * systemd passes a file; docker compose passes the container's environment,
+ * because .env is gitignored and never enters the image — compose reads it on
+ * the host and hands the values over as variables. Reading only the file meant
+ * that under Docker no key reached the worker at all: the site started, and
+ * signing in returned 401 because OWNER_PASSWORD_HASH was empty inside the
+ * runtime while being perfectly set in the container.
+ *
+ * The denylist is the shell's and Node's own furniture, which the worker has no
+ * use for. A file, when given, wins over the environment.
+ */
+const IGNORED_ENV = /^(PATH|HOME|PWD|OLDPWD|SHELL|SHLVL|TERM|USER|LOGNAME|LANG|LC_[A-Z]+|TMPDIR|HOSTNAME|_|npm_.*|NODE_.*|NPM_.*)$/;
+function processEnvBindings() {
+  const vars = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(key) || IGNORED_ENV.test(key)) continue;
+    vars[key] = String(value ?? "");
+  }
+  return vars;
+}
+
+const bindings = {
+  ...processEnvBindings(),
+  ...readEnvFile(argument("env-file", "")),
+};
 
 /**
  * The D1 bindings, in the shape wrangler passes them.
@@ -221,6 +247,70 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
 }
 
 await mf.ready;
+
+/**
+ * Bring the schema up to date before answering anything.
+ *
+ * On a fresh volume there is no database file at all, so the container's start
+ * script had nothing to point a migration tool at: it printed "the database is
+ * created on the first request" and started anyway, handing a first-time
+ * self-hoster a site where every page is a 500 because no table exists. Asking
+ * Miniflare for the binding creates the database, and then the same migrations
+ * run against it.
+ *
+ * Idempotent: each file is recorded in chanlyst_migrations and skipped next
+ * time, so this is a no-op on every start after the first.
+ */
+async function migrate() {
+  const binding = Object.keys(d1)[0];
+  if (!binding) return;
+  const database = await mf.getD1Database(binding);
+  await database.exec(
+    "CREATE TABLE IF NOT EXISTS chanlyst_migrations (name text PRIMARY KEY NOT NULL, applied_at text NOT NULL)",
+  );
+  const done = new Set(
+    (await database.prepare("SELECT name FROM chanlyst_migrations").all()).results.map(
+      (row) => row.name,
+    ),
+  );
+  const directory = resolve(serverDir, "../..", "drizzle");
+  let files = [];
+  try {
+    files = readdirSync(directory).filter((name) => /^\d{4}_.*\.sql$/.test(name)).sort();
+  } catch {
+    return;
+  }
+  let applied = 0;
+  for (const file of files) {
+    if (done.has(file)) continue;
+    const sql = readFileSync(join(directory, file), "utf8");
+    for (const statement of sql.split("--> statement-breakpoint").map((part) => part.trim())) {
+      // PRAGMA cannot run through the query interface, and the rebuild-style
+      // migrations that use it manage their own foreign keys anyway.
+      if (!statement || /^PRAGMA/i.test(statement)) continue;
+      // D1's exec() treats a newline as a statement separator, so the SQL has
+      // to arrive on one line — and flattening it naively turns a leading "--"
+      // comment into one that swallows the statement behind it. The comment
+      // lines go first, then the newlines.
+      const flat = statement
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("--"))
+        .join(" ")
+        .trim();
+      if (!flat) continue;
+      await database.exec(flat);
+    }
+    await database
+      .prepare("INSERT INTO chanlyst_migrations (name, applied_at) VALUES (?, ?)")
+      .bind(file, new Date().toISOString())
+      .run();
+    applied += 1;
+  }
+  if (applied) console.info(`applied ${applied} migration(s)`);
+}
+
+await migrate();
+
 server.listen(port, host, () => {
   console.info(`Chanlyst ready on http://${host}:${port}`);
 });

@@ -1,10 +1,30 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import hostingConfig from "./.openai/hosting.json";
+import { existsSync, readFileSync } from "node:fs";
 import { sites } from "./build/sites-vite-plugin";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
+
+/**
+ * Which bindings this deployment has, read from the hosting file when there is
+ * one.
+ *
+ * It used to be a plain import, which meant the file had to exist — and it does
+ * not in the published repository, because it names the original deployment's
+ * hosting project. A fresh clone therefore failed on `npm run build` with
+ * "Could not resolve ./.openai/hosting.json", before anything else could go
+ * wrong. Found by cloning the public repository and running the README's own
+ * instructions.
+ *
+ * The fallback is what the application actually expects: one D1 binding called
+ * DB, no bucket.
+ */
+const hostingConfig: { d1?: string | null; r2?: string | null } = existsSync(
+  "./.openai/hosting.json",
+)
+  ? JSON.parse(readFileSync("./.openai/hosting.json", "utf8"))
+  : { d1: "DB", r2: null };
 
 const { d1, r2 } = hostingConfig;
 

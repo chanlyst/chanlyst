@@ -35,16 +35,14 @@ if [ -z "${GOOGLE_AUTH_CLIENT_ID:-}" ]; then
   echo "note: no Google OAuth — messages are drafted and copied, not sent."
 fi
 
-# The database is a file the Workers runtime owns; migrations run against it
-# directly. Doing it here means a fresh volume becomes a working install
-# without anyone reading a migration guide.
-DB=$(find .wrangler/state -path "*d1*" -name "*.sqlite" ! -name "metadata.sqlite" 2>/dev/null | head -1)
-if [ -n "$DB" ]; then
-  echo "==> applying migrations"
-  node deploy/apply-migrations.mjs "$DB" ./drizzle || true
-else
-  echo "==> first start: the database is created on the first request"
-fi
-
+# Migrations run inside the server now, before it listens: on a fresh volume
+# there is no database file yet to point a migration script at, and this used
+# to print "the database is created on the first request" and start anyway —
+# giving a first-time self-hoster a site where every page is a 500 because no
+# table exists.
 echo "==> Chanlyst on http://localhost:${PORT:-3000}"
-exec npx wrangler dev --local --port "${PORT:-3000}" --ip 0.0.0.0
+exec node deploy/serve.mjs \
+  --config dist/server/wrangler.json \
+  --persist-to .wrangler/state \
+  --port "${PORT:-3000}" \
+  --ip 0.0.0.0
