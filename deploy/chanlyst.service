@@ -10,11 +10,19 @@ Group=chanlyst
 WorkingDirectory=/opt/chanlyst/current
 Environment=HOME=/var/lib/chanlyst
 Environment=WRANGLER_SEND_METRICS=false
-Environment=WRANGLER_LOG_PATH=/var/lib/chanlyst/wrangler.log
 Environment=MINIFLARE_REGISTRY_PATH=/var/lib/chanlyst/registry
-ExecStart=/opt/chanlyst/current/node_modules/.bin/wrangler dev --config /opt/chanlyst/current/dist/server/wrangler.json --local --persist-to /var/lib/chanlyst/state --env-file /etc/chanlyst/chanlyst.env --ip 127.0.0.1 --port 3000 --show-interactive-dev-session=false --log-level info
+# deploy/serve.mjs replaced `wrangler dev` here on 15 August. Same runtime,
+# same bindings, same SQLite directory — no data moved and no code changed —
+# with the development machinery gone: no file watching, no DevTools inspector
+# proxy on a websocket, no dev-session registry, no unbounded debug log.
+ExecStart=/usr/local/bin/node /opt/chanlyst/current/deploy/serve.mjs --config /opt/chanlyst/current/dist/server/wrangler.json --persist-to /var/lib/chanlyst/state --env-file /etc/chanlyst/chanlyst.env --ip 127.0.0.1 --port 3000
+# wrangler dev exits with status 1 and no diagnostic about five times a day —
+# nothing in the journal beyond an empty "✘ [ERROR]", nothing in its own debug
+# log at the instant it goes, no OOM kill, no full disk. Measured 14–15 August:
+# five exits in twenty-four hours. Until the cause is found, the cost is the
+# gap, so the gap is one second rather than five.
 Restart=always
-RestartSec=5
+RestartSec=1
 TimeoutStopSec=20
 KillSignal=SIGINT
 NoNewPrivileges=true
