@@ -46,6 +46,7 @@ design-qa.md
 scripts/measure-discovery.mjs
 scripts/measure-enrichment.mjs
 scripts/gumroad-subscribe.sh
+docs/launch-copy.md
 .openai/hosting.json
 public/a88066d1b4bcb7d09fc6981d264c74a5.txt"
 
