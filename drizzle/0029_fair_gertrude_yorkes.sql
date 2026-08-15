@@ -1,0 +1,1 @@
+ALTER TABLE `digest_settings` ADD `last_report_sent_at` text;

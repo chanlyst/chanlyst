@@ -1,0 +1,10 @@
+[Unit]
+Description=Plan the Chanlyst lead lifecycle tasks every morning
+
+[Timer]
+OnCalendar=*-*-* 06:30:00
+Persistent=true
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target

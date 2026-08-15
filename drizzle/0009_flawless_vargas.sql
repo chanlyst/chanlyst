@@ -1,0 +1,22 @@
+CREATE TABLE `subscriptions` (
+	`workspace_id` text PRIMARY KEY NOT NULL,
+	`provider` text DEFAULT 'lemon_squeezy' NOT NULL,
+	`customer_id` text DEFAULT '' NOT NULL,
+	`subscription_id` text DEFAULT '' NOT NULL,
+	`order_id` text DEFAULT '' NOT NULL,
+	`product_id` text DEFAULT '' NOT NULL,
+	`variant_id` text DEFAULT '' NOT NULL,
+	`variant_name` text DEFAULT '' NOT NULL,
+	`status` text DEFAULT 'inactive' NOT NULL,
+	`plan` text DEFAULT 'pro' NOT NULL,
+	`renews_at` text,
+	`ends_at` text,
+	`trial_ends_at` text,
+	`card_brand` text DEFAULT '' NOT NULL,
+	`card_last_four` text DEFAULT '' NOT NULL,
+	`portal_url` text DEFAULT '' NOT NULL,
+	`update_payment_url` text DEFAULT '' NOT NULL,
+	`test_mode` integer DEFAULT true NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL
+);

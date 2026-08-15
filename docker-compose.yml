@@ -1,0 +1,26 @@
+# Chanlyst, self-hosted.
+#
+#   cp .env.example .env      # put your OpenRouter key in it
+#   docker compose up
+#
+# Then http://localhost:3000 and sign in with the owner login.
+
+services:
+  chanlyst:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Where the app thinks it lives. OAuth redirects and the links in
+      # generated e-mails are built from this, so it has to be the address a
+      # browser actually uses — not localhost, once this is behind a domain.
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3000}
+    volumes:
+      # The database. Without this line every restart is a fresh install.
+      - chanlyst-state:/app/.wrangler
+    restart: unless-stopped
+
+volumes:
+  chanlyst-state:

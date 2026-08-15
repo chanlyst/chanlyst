@@ -1,0 +1,29 @@
+[Unit]
+Description=Chanlyst customer-acquisition agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chanlyst
+Group=chanlyst
+WorkingDirectory=/opt/chanlyst/current
+Environment=HOME=/var/lib/chanlyst
+Environment=WRANGLER_SEND_METRICS=false
+Environment=WRANGLER_LOG_PATH=/var/lib/chanlyst/wrangler.log
+Environment=MINIFLARE_REGISTRY_PATH=/var/lib/chanlyst/registry
+ExecStart=/opt/chanlyst/current/node_modules/.bin/wrangler dev --config /opt/chanlyst/current/dist/server/wrangler.json --local --persist-to /var/lib/chanlyst/state --env-file /etc/chanlyst/chanlyst.env --ip 127.0.0.1 --port 3000 --show-interactive-dev-session=false --log-level info
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/chanlyst
+ReadWritePaths=/opt/chanlyst/current/dist/server/.wrangler
+ReadWritePaths=/opt/chanlyst/current/node_modules/.mf
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=Chanlyst channel monitor
+After=network-online.target chanlyst.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/chanlyst/chanlyst.env
+ExecStart=/bin/sh -c 'exec /usr/bin/curl --fail --silent --show-error --max-time 900 -X POST -H "Authorization: Bearer $AGENT_CRON_SECRET" -H "Content-Type: application/json" --data "{\"mode\":\"cron\"}" http://127.0.0.1:3000/api/channels/watch'

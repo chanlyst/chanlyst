@@ -1,0 +1,10 @@
+[Unit]
+Description=Re-check the Chanlyst channels we already work with, once a week
+
+[Timer]
+OnCalendar=Mon *-*-* 05:00:00
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

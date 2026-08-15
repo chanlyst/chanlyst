@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard/
+Disallow: /invite/
+
+Sitemap: https://chanlyst.com/sitemap.xml

@@ -1,0 +1,10 @@
+[Unit]
+Description=Advance the Chanlyst preparation pipeline every two minutes
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=2m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

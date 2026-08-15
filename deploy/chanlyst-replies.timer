@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Gmail replies every thirty minutes
+
+[Timer]
+OnBootSec=5m
+OnUnitActiveSec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

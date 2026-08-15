@@ -1,0 +1,12 @@
+-- What a pipeline run is for.
+--
+-- "Find channels" was a synchronous HTTP request: three minutes of searching
+-- inside one POST, with the results handed back for the browser to save. On
+-- 13 August a run reached 216 seconds, the proxy cut it at 180, and thirty-six
+-- channels that had already been searched for and paid for were thrown away
+-- because the tab that was supposed to save them got a 504.
+--
+-- The preparation pipeline already solves this: one step per request, state in
+-- the database, a timer that finishes what an abandoned browser started. A
+-- discovery run is the same machine with a shorter list of steps.
+ALTER TABLE pipeline_runs ADD COLUMN scope TEXT NOT NULL DEFAULT 'full';
