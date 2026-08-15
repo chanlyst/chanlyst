@@ -15,6 +15,8 @@ and it goes out through your own Gmail account.
 Hosted at [chanlyst.com](https://chanlyst.com). This repository is the whole
 thing — run it yourself and the only bills are the two API keys below.
 
+![Discovered channels, each with the reason it was kept and what to do about it](docs/screenshots/channels.png)
+
 ---
 
 ## What it is not
@@ -97,6 +99,13 @@ Each candidate is then read from its own page rather than from the model's
 memory, and judged against the product. Anything live and real but aimed
 elsewhere is grouped off rather than deleted — a wrong rejection is expensive
 and invisible.
+
+![The product card: passport, acquisition strategy and niche monitoring](docs/screenshots/products.png)
+
+The screenshots are a real run against a made-up product — a time-tracking app
+for freelance designers — so the channels in them are the ones Chanlyst
+actually returned for it: a Forbes Advisor roundup, r/graphic_design, design
+podcasts, a Zapier comparison post. Nothing in them is staged.
 
 ---
 
