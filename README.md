@@ -25,9 +25,13 @@ each one, whether the way in is a form, a paid slot, or a message to a human.
 
 </div>
 
-<video src="https://raw.githubusercontent.com/chanlyst/chanlyst/main/docs/chanlyst-walkthrough.mp4" controls muted playsinline width="100%"></video>
+<!-- An inline player needs a github.com/user-attachments URL, which only comes
+     from uploading the file through GitHub's own UI. A <video> tag pointing at
+     raw.githubusercontent is stripped by the markdown sanitiser, and the file
+     is served as application/octet-stream with nosniff, so a browser would
+     download it rather than play it. Measured, not assumed. -->
 
-[Watch the walkthrough](https://raw.githubusercontent.com/chanlyst/chanlyst/main/docs/chanlyst-walkthrough.mp4) — 71 seconds, no sound needed.
+**[▶ Watch the 71-second walkthrough](docs/chanlyst-walkthrough.mp4)** — no sound needed.
 
 ![Discovered channels, each with the reason it was kept and what to do about it](docs/screenshots/channels.png)
 
