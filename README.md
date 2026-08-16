@@ -25,13 +25,16 @@ each one, whether the way in is a form, a paid slot, or a message to a human.
 
 </div>
 
-<!-- An inline player needs a github.com/user-attachments URL, which only comes
-     from uploading the file through GitHub's own UI. A <video> tag pointing at
-     raw.githubusercontent is stripped by the markdown sanitiser, and the file
-     is served as application/octet-stream with nosniff, so a browser would
-     download it rather than play it. Measured, not assumed. -->
+<!-- The player only works from a github.com/user-attachments URL, which exists
+     because the file was uploaded through GitHub's own interface and the
+     comment holding it was posted (issue #1). Two things that do NOT work,
+     both measured rather than assumed: a <video> tag pointing at
+     raw.githubusercontent is deleted by the markdown sanitiser, and that file
+     is served as application/octet-stream with nosniff so a browser downloads
+     it instead of playing it. An unposted upload 404s for everyone but the
+     uploader. -->
 
-**[▶ Watch the 71-second walkthrough](docs/chanlyst-walkthrough.mp4)** — no sound needed.
+https://github.com/user-attachments/assets/2be410bb-ec2f-4a4d-8045-2253a8b6036a
 
 ![Discovered channels, each with the reason it was kept and what to do about it](docs/screenshots/channels.png)
 
