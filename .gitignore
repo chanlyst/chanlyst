@@ -48,3 +48,8 @@ tsconfig.tsbuildinfo
 
 # The operator's own deploy target. Never published.
 deploy/host.local
+
+# The Remotion project's own build output and dependencies. The compositions
+# and the captured frames are tracked; a 38MB render is not.
+video/node_modules
+video/out

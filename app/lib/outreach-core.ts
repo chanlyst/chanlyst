@@ -104,7 +104,18 @@ export async function draftOutreach(
   const model = bindings.OPENROUTER_MODEL || "openai/gpt-5.2";
   const outreachLocale = resolveOutreachLocale(product, locale || "en");
   const language = outreachLocale === "en" ? "English" : "Russian";
-  const prompt = `Ты — senior partnership manager Chanlyst.
+  // The sender works for the PRODUCT, not for us.
+  //
+  // This said "Ты — senior partnership manager Chanlyst" and the model believed
+  // it: writing a draft for a demo product called Larkfield produced "I manage
+  // partnerships at Chanlyst for Larkfield". For our own account that read
+  // correctly and hid the bug for weeks; for every other account, and for every
+  // self-hosted install, it puts a stranger's company in the first sentence of
+  // their outreach.
+  const senderCompany = String(product.name || "").trim() || "the product below";
+  const prompt = `Ты — senior partnership manager компании ${senderCompany}.
+Пиши от лица ${senderCompany}. Никогда не называй никакую другую компанию
+работодателем отправителя.
 Напиши персонализированное первое сообщение для канала ${channel || "email"}.
 Язык получателя: ${language}. Весь текст темы и сообщения должен быть написан
 только на ${language}, независимо от языка интерфейса и исходных данных.

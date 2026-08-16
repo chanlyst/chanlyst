@@ -25,6 +25,10 @@ each one, whether the way in is a form, a paid slot, or a message to a human.
 
 </div>
 
+<video src="https://raw.githubusercontent.com/chanlyst/chanlyst/main/docs/chanlyst-walkthrough.mp4" controls muted playsinline width="100%"></video>
+
+[Watch the walkthrough](https://raw.githubusercontent.com/chanlyst/chanlyst/main/docs/chanlyst-walkthrough.mp4) — 71 seconds, no sound needed.
+
 ![Discovered channels, each with the reason it was kept and what to do about it](docs/screenshots/channels.png)
 
 ---
