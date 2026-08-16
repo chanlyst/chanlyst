@@ -415,3 +415,24 @@ test("a generated draft only lands in the composer showing that lead", () => {
     assert.ok(body.indexOf(setter) > guard, `${setter} escapes the guard`);
   }
 });
+
+test("there is one way to start a run, and a different verb for going deeper", () => {
+  const sources = read("app/dashboard/sections/sources-section.tsx");
+  const table = read("app/dashboard/sections/leads-table.tsx");
+
+  // "Find channels" sat next to the list and read like the way to begin, but it
+  // runs discovery alone — it skips the direct-buyer half of the same question.
+  // People pressed the nearer button, got half a result, and had no way to know
+  // the other half existed. That is why Outreach was empty for weeks while the
+  // step that fills it had simply never run.
+  //
+  // So before anything is found, both places start the whole pipeline; after
+  // that the narrow search stays, under a name that means "more" rather than
+  // "begin" — which it now genuinely is, since a repeat run rotates to the next
+  // analysed queries and reads further down the results.
+  assert.match(sources, /hasDiscovered \? \(/);
+  assert.match(sources, /t\.searchDeeper/);
+  assert.match(sources, /startPipeline\(\)/);
+  assert.match(table, /startPipeline\(\)/);
+  assert.doesNotMatch(table, /onClick=\{\(\) => void discover\(\)\}/);
+});

@@ -2558,6 +2558,8 @@ export default function Home({
           setSources={setSources}
           busy={busy}
           discover={discover}
+          hasDiscovered={hasDiscovered}
+          startPipeline={startPipeline}
           run={activePipelineRun}
         />
 
@@ -2582,6 +2584,7 @@ export default function Home({
           chooseLead={chooseLead}
           chooseLeadModeFilter={chooseLeadModeFilter}
           discover={discover}
+          startPipeline={startPipeline}
           updateLeadStatus={updateLeadStatus}
           updateLeadPlacement={updateLeadPlacement}
           copyUtmLink={copyUtmLink}

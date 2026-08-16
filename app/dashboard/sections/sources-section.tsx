@@ -15,6 +15,8 @@ export default function SourcesSection({
   setSources,
   busy,
   discover,
+  hasDiscovered,
+  startPipeline,
   run,
 }: {
   t: Dictionary;
@@ -24,6 +26,9 @@ export default function SourcesSection({
   setSources: Dispatch<SetStateAction<string[]>>;
   busy: BusyState;
   discover: () => Promise<void>;
+  /** Whether this product has any discovered channel yet. */
+  hasDiscovered: boolean;
+  startPipeline: () => Promise<void>;
   /**
    * The run this panel's button started. The progress bar lives here rather
    * than pinned to the window: it belongs to the button that caused it, and
@@ -40,14 +45,37 @@ export default function SourcesSection({
             <p>{editing.name}</p>
           </div>
         </div>
+        {/* One way in, and one way to go further.
+            
+            This button used to say "Find channels" whatever the state, which
+            made it a second start beside "Prepare everything" — and a narrower
+            one, because it searches for places and skips the direct-buyer half
+            entirely. People pressed the button next to the list, got half a
+            result, and had no way to know the other half existed: that is why
+            Outreach sat empty for weeks.
+
+            Before anything is found it starts the whole run. After that it
+            means "more", which is a real second action now that a repeat run
+            rotates to the next analysed queries and reads further down. */}
         <div className="head-actions">
-          <button
-            className="lime"
-            onClick={() => void discover()}
-            disabled={busy === "discover"}
-          >
-            {busy === "discover" ? t.finding : t.find}
-          </button>
+          {hasDiscovered ? (
+            <button
+              className="lime"
+              title={t.searchDeeperHint}
+              onClick={() => void discover()}
+              disabled={busy === "discover"}
+            >
+              {busy === "discover" ? t.finding : t.searchDeeper}
+            </button>
+          ) : (
+            <button
+              className="lime"
+              onClick={() => void startPipeline()}
+              disabled={busy === "pipeline" || busy === "discover"}
+            >
+              {busy === "pipeline" ? t.pipelineStarting : `✦ ${t.pipelineRun}`}
+            </button>
+          )}
           <strong>{sources.length}</strong>
         </div>
       </div>

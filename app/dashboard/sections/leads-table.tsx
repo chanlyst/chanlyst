@@ -246,6 +246,7 @@ export default function LeadsTable({
   chooseLead,
   chooseLeadModeFilter,
   discover,
+  startPipeline,
   updateLeadStatus,
   updateLeadPlacement,
   copyUtmLink,
@@ -281,6 +282,7 @@ export default function LeadsTable({
   chooseLead: (lead: Lead) => void;
   chooseLeadModeFilter: (nextFilter: LeadModeFilter) => void;
   discover: () => Promise<void>;
+  startPipeline: () => Promise<void>;
   updateLeadStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
   updateLeadPlacement: (
     id: string,
@@ -364,7 +366,9 @@ export default function LeadsTable({
                 ))}
               </div>
             ) : !leadCounts.all && leadModeFilter === "all" ? (
-              <div className="empty"><span>◎</span><p>{hasDiscovered ? t.emptyNoResults : t.emptyNoDiscovery}</p><button className="lime" onClick={() => void discover()} disabled={busy === "discover"}>{t.find}</button></div>
+              <div className="empty"><span>◎</span><p>{hasDiscovered ? t.emptyNoResults : t.emptyNoDiscovery}</p>{/* The empty state offered the narrow search too. Nothing has run here
+                    by definition, so the only thing worth offering is the whole run. */}
+                <button className="lime" onClick={() => void startPipeline()} disabled={busy === "pipeline" || busy === "discover"}>{busy === "pipeline" ? t.pipelineStarting : `✦ ${t.pipelineRun}`}</button></div>
             ) : (
               <>
               <div className="lead-filters">
