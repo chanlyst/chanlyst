@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { freePlan, planCatalog } from "../app/lib/plans.mjs";
 
 // The free tier existed and was enforced for weeks while the marketing page
@@ -68,7 +68,15 @@ test("the marketing page states no plan numbers of its own", () => {
 // nothing noticed. Prices and limits are going to change again; this makes the
 // document change with them instead of quietly describing a product we stopped
 // selling a month ago.
-test("the status document states the prices the code charges", () => {
+// The document is one of the internal notes publish-oss.sh strips, so in a
+// public clone there is nothing to check and the suite must still pass: the
+// README promises it runs with no network and no keys. The cost of skipping
+// rather than failing is that deleting the document here would go unnoticed.
+test("the status document states the prices the code charges", (t) => {
+  if (!existsSync("docs/PROJECT_STATUS.md")) {
+    t.skip("docs/PROJECT_STATUS.md is internal and absent from public clones");
+    return;
+  }
   const doc = readFileSync("docs/PROJECT_STATUS.md", "utf8");
 
   for (const plan of Object.values(planCatalog)) {

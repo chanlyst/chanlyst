@@ -49,7 +49,18 @@ scripts/gumroad-subscribe.sh
 docs/launch-copy.md
 video
 .openai/hosting.json
-public/a88066d1b4bcb7d09fc6981d264c74a5.txt"
+public/a88066d1b4bcb7d09fc6981d264c74a5.txt
+tests/guides.test.mjs"
+
+# tests/guides.test.mjs parses docs/seo/keywords.json at the top of the module,
+# so with that directory stripped the file cannot load at all and every test in
+# it fails. It goes with the data it tests. The other two suites that touched
+# internal files skip those individual cases instead, because the rest of what
+# they cover applies to a self-hoster too.
+#
+# This mattered: a fresh clone of the published repository failed `npm test`
+# three times, under a README promising the suite runs with no network and no
+# keys. Nobody had run it.
 
 echo "==> exporting tracked files to $TARGET"
 # Everything except .git: the clone's history is what makes the next push an

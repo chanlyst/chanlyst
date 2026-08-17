@@ -9,7 +9,13 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-0f7a55.svg)](LICENSE)
 [![Self-hostable](https://img.shields.io/badge/Self--hostable-docker%20compose%20up-0f7a55.svg)](#run-it)
-[![Tests](https://img.shields.io/badge/tests-439-0f7a55.svg)](tests)
+[![Tests](https://img.shields.io/badge/tests-432-0f7a55.svg)](tests)
+
+<!-- 432 is what a clone of THIS repository reports, which is the only number a
+     reader can check. The private tree runs 440: it still has the internal
+     notes that two of those cases assert on, plus a suite about the SEO
+     keyword data that does not ship. Do not "correct" this to 440. -->
+
 
 ### Find the places your paying customers already are — not the people.
 
@@ -78,19 +84,20 @@ https://github.com/user-attachments/assets/2be410bb-ec2f-4a4d-8045-2253a8b6036a
 git clone https://github.com/chanlyst/chanlyst.git
 cd chanlyst
 cp .env.example .env     # put your OpenRouter key in it
+docker compose run --rm chanlyst node scripts/hash-password.mjs 'your password'
 docker compose up
 ```
 
+The middle line prints the value for `OWNER_PASSWORD_HASH` — paste it into
+`.env` alongside an `OWNER_LOGIN` of your choosing. Owner sign-in is the only
+way in that needs no third-party OAuth, so the container refuses to start
+without it rather than serving you a login that can never succeed.
+
+It runs inside the image on purpose: Docker is the only thing this page asks
+you to install, and the same script works on the host if you happen to have
+Node.
+
 Then open <http://localhost:3000>.
-
-You need a password hash for the owner login before you can sign in:
-
-```bash
-node scripts/hash-password.mjs 'your password'
-```
-
-Paste the output into `OWNER_PASSWORD_HASH` in `.env`, alongside an
-`OWNER_LOGIN` of your choosing.
 
 Everything else — Gmail sending, e-mail sign-in links, billing — is optional and
 off until you configure it. `.env.example` explains each one where it stands.
@@ -149,7 +156,7 @@ underneath and Drizzle for the schema. The Docker image exists because "clone it
 and work out the Workers runtime" would lose most readers on the first evening.
 
 ```bash
-npm test     # typecheck, production build, and 439 tests — no network, no keys
+npm test     # typecheck, production build, and 432 tests — no network, no keys
 ```
 
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) has the data model and how the

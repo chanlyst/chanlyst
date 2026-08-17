@@ -1,9 +1,12 @@
 # Chanlyst, self-hosted.
 #
 #   cp .env.example .env      # put your OpenRouter key in it
-#   docker compose up
+#   docker compose run --rm chanlyst node scripts/hash-password.mjs 'a password'
+#   docker compose up         # after pasting that hash into OWNER_PASSWORD_HASH
 #
-# Then http://localhost:3000 and sign in with the owner login.
+# Then http://localhost:3000 and sign in with the owner login. The second line
+# is not optional: without a hash there is no way to sign in, so the container
+# stops instead of starting.
 
 services:
   chanlyst:

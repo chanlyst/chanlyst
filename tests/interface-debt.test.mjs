@@ -159,10 +159,16 @@ test("taps do not wait for a second tap", () => {
 // IndexNow authenticates by a file whose name is the key and whose contents
 // are the same key. A mismatch is rejected silently, so it is worth a test
 // rather than a memory.
-test("the IndexNow key file proves what it claims", () => {
+// The key belongs to chanlyst.com and publish-oss.sh strips it: it does
+// nothing on somebody else's server. A public clone therefore has no file to
+// check, and the suite still has to pass there.
+test("the IndexNow key file proves what it claims", (t) => {
   const file = readdirSync("public").find((name) => /^[0-9a-f]{32}\.txt$/.test(name));
 
-  assert.ok(file, "no IndexNow key file in public/");
+  if (!file) {
+    t.skip("the IndexNow key is ours and absent from public clones");
+    return;
+  }
   assert.equal(
     read(`public/${file}`).trim(),
     file.replace(/\.txt$/, ""),
