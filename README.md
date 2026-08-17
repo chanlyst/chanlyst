@@ -10,6 +10,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-0f7a55.svg)](LICENSE)
 [![Self-hostable](https://img.shields.io/badge/Self--hostable-docker%20compose%20up-0f7a55.svg)](#run-it)
 [![Tests](https://img.shields.io/badge/tests-432-0f7a55.svg)](tests)
+[![Docker quickstart](https://github.com/chanlyst/chanlyst/actions/workflows/docker.yml/badge.svg)](https://github.com/chanlyst/chanlyst/actions/workflows/docker.yml)
 
 <!-- 432 is what a clone of THIS repository reports, which is the only number a
      reader can check. The private tree runs 440: it still has the internal

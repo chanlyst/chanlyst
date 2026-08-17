@@ -1,0 +1,132 @@
+# Walks the path the README promises, on a machine that has never seen this
+# project.
+#
+# It exists because nobody had. The quickstart said `docker compose up` for
+# weeks while no one had run `docker build` even once — the two people who
+# checked the repository both worked on machines with no container runtime, and
+# both said so honestly and moved on. A green tick here is worth more than
+# either of us saying we looked.
+#
+# The three steps are the reader's, in the reader's order: build the image,
+# generate the password hash inside it, start the thing and see whether it
+# answers.
+name: Docker quickstart
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Dependencies rot on their own schedule, not ours. A weekly run catches a
+  # base image or a transitive package that breaks the build while nobody is
+  # touching the code.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  quickstart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # docker compose validates env_file on every command, build included, so
+      # the file has to exist before anything else. It is gitignored by design,
+      # which is the whole reason the hash cannot simply be committed.
+      #
+      # The placeholder key says "example" on purpose: the publish script greps
+      # for a populated OPENROUTER_API_KEY and refuses to ship the tree if it
+      # finds one. It found this file and stopped, which is the check doing its
+      # job — so the fake value is worded to be recognisably fake rather than
+      # the check being loosened to let it past.
+      - name: Put a placeholder .env in place
+        run: |
+          cat > .env <<'EOF'
+          OPENROUTER_API_KEY=sk-example-ci-placeholder
+          OWNER_LOGIN=owner
+          OWNER_PASSWORD_HASH=
+          SELF_HOST=1
+          PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+
+      - name: Build the image
+        run: docker compose build
+
+      # The README tells a reader to run this before anything else, because the
+      # container refuses to start without the hash. It had never been executed
+      # in a container by anyone.
+      - name: Generate an owner password hash inside the image
+        id: hash
+        run: |
+          HASH=$(docker compose run --rm --no-deps chanlyst \
+            node scripts/hash-password.mjs 'ci-quickstart-password' | tail -1)
+          if [ -z "$HASH" ]; then
+            echo "hash-password.mjs printed nothing"
+            exit 1
+          fi
+          case "$HASH" in
+            pbkdf2\$*) : ;;
+            *) echo "unexpected hash shape: $HASH"; exit 1 ;;
+          esac
+          echo "hash=$HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Start it the way the README says
+        run: |
+          # A quoted heredoc and a substitution, not shell interpolation:
+          # the hash contains $ signs, and a shell that expands them turns a
+          # correct password into a silent 401 — which is documented in
+          # .env.example because it has already cost half an hour once.
+          cat > .env <<'EOF'
+          OPENROUTER_API_KEY=sk-example-ci-placeholder
+          OWNER_LOGIN=owner
+          OWNER_PASSWORD_HASH=__HASH__
+          SELF_HOST=1
+          PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+          python3 - <<'PY'
+          import os
+          hash_value = os.environ["OWNER_HASH"]
+          path = ".env"
+          text = open(path).read().replace("__HASH__", hash_value)
+          open(path, "w").write(text)
+          PY
+          grep -c '^OWNER_PASSWORD_HASH=pbkdf2\$' .env
+          docker compose up -d
+        env:
+          OWNER_HASH: ${{ steps.hash.outputs.hash }}
+
+      - name: Wait for it to answer
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://localhost:3000/login; then
+              echo "up after ${attempt} tries"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "never came up"
+          docker compose logs --tail=120
+          exit 1
+
+      # A fresh volume has no tables at all. The start used to print "the
+      # database is created on the first request" and serve a site where every
+      # page was a 500; the migrations run inside the server now, and this is
+      # the assertion that they still do.
+      - name: Check that the migrations ran and sign-in works
+        run: |
+          docker compose logs | grep -qi "applied .* migration" \
+            || { echo "no migrations were applied on an empty volume"; docker compose logs --tail=120; exit 1; }
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+            http://localhost:3000/api/auth/password \
+            -H 'content-type: application/json' \
+            -d '{"login":"owner","password":"ci-quickstart-password"}')
+          [ "$CODE" = "200" ] || { echo "sign-in returned $CODE"; docker compose logs --tail=120; exit 1; }
+
+      - name: Show the logs when something failed
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Stop
+        if: always()
+        run: docker compose down -v
