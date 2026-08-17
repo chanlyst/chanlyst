@@ -442,3 +442,21 @@ test("there is one way to start a run, and a different verb for going deeper", (
   assert.match(table, /startPipeline\(\)/);
   assert.doesNotMatch(table, /onClick=\{\(\) => void discover\(\)\}/);
 });
+
+test("a generated password hash survives docker compose reading it", () => {
+  const generator = read("scripts/hash-password.mjs");
+  const auth = read("app/lib/auth.ts");
+
+  // The fields used to be separated by "$", the shape crypt(3) made familiar.
+  // docker compose substitutes anything after a dollar in an env file, so the
+  // hash reached the container with its last two fields replaced by empty
+  // strings: the site came up, the migrations ran, and signing in returned 401
+  // on a correct password. The CI job that walks the README's own quickstart
+  // caught it on its first run.
+  assert.match(generator, /pbkdf2:\$\{ITERATIONS\}:/);
+  assert.doesNotMatch(generator, /pbkdf2\$\$\{ITERATIONS\}/);
+
+  // Both separators keep parsing, so a hash generated before the change still
+  // signs in and nobody has to regenerate one.
+  assert.match(auth, /stored\.split\(\/\[\$:\]\/\)/);
+});

@@ -66,17 +66,17 @@ jobs:
             exit 1
           fi
           case "$HASH" in
-            pbkdf2\$*) : ;;
+            pbkdf2:*) : ;;
             *) echo "unexpected hash shape: $HASH"; exit 1 ;;
           esac
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
 
       - name: Start it the way the README says
         run: |
-          # A quoted heredoc and a substitution, not shell interpolation:
-          # the hash contains $ signs, and a shell that expands them turns a
-          # correct password into a silent 401 — which is documented in
-          # .env.example because it has already cost half an hour once.
+          # A quoted heredoc and a substitution rather than shell
+          # interpolation. The hash no longer contains a dollar — this job is
+          # what proved it had to stop containing one — but the file is still
+          # written the careful way, because the next value put in here might.
           cat > .env <<'EOF'
           OPENROUTER_API_KEY=sk-example-ci-placeholder
           OWNER_LOGIN=owner
@@ -91,7 +91,7 @@ jobs:
           text = open(path).read().replace("__HASH__", hash_value)
           open(path, "w").write(text)
           PY
-          grep -c '^OWNER_PASSWORD_HASH=pbkdf2\$' .env
+          grep -c '^OWNER_PASSWORD_HASH=pbkdf2:' .env
           docker compose up -d
         env:
           OWNER_HASH: ${{ steps.hash.outputs.hash }}

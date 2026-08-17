@@ -38,4 +38,19 @@ const bits = new Uint8Array(
 );
 
 const base64 = (bytes) => Buffer.from(bytes).toString("base64");
-console.log(`pbkdf2$${ITERATIONS}$${base64(salt)}$${base64(bits)}`);
+
+// Colons, not dollars.
+//
+// The fields used to be separated by "$", which is the shape crypt(3) made
+// familiar — and which every tool that reads an env file treats as the start of
+// a variable. `source .env` in a shell eats it. So does docker compose, which
+// is worse: the quickstart in the README hands this value to `docker compose
+// up`, compose substituted the two fields that follow a dollar with empty
+// strings, and the container came up with a truncated hash. The site started,
+// the migrations ran, and signing in returned 401 on a perfectly correct
+// password. Found by the CI job that walks the README's own instructions.
+//
+// Base64 never produces a colon, so the field boundary stays unambiguous, and
+// the verifier has always split on either character — hashes generated before
+// this change keep working untouched.
+console.log(`pbkdf2:${ITERATIONS}:${base64(salt)}:${base64(bits)}`);
