@@ -199,16 +199,23 @@ export async function updateProspectApi(payload: {
 
 export async function saveProductApi(
   product: Product,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; id?: string }> {
   const response = await fetch("/api/products", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
   });
-  if (response.ok) return { ok: true };
   const result = (await response.json().catch(() => ({}))) as {
     error?: string;
+    id?: string;
   };
+  // The id matters on the way back, not just on the way out. A product saved
+  // without one is given a fresh uuid by the server, and this function used to
+  // throw that answer away: the browser kept an id of "", every later call sent
+  // it, and analyse / discover / competitor-gap all answered 400 until the page
+  // was reloaded. Each save also wrote another row, because an empty id can
+  // never match an existing one.
+  if (response.ok) return { ok: true, id: result.id };
   return { ok: false, error: result.error };
 }
 

@@ -22,11 +22,11 @@ npm test
 ```
 
 That is a typecheck, a production build and the whole suite in one command —
-446 tests, no network, no API keys. It has to pass.
+441 tests, no network, no API keys. It has to pass.
 
-(The private repository runs 440. The eight that do not travel check internal
-documents the publish script strips — they would fail here for the absence of
-a file rather than for anything about the code.)
+(The private repository runs 449. The eight that do not travel check the SEO
+keyword data the publish script strips — they would fail here for the absence
+of a file rather than for anything about the code.)
 
 ```bash
 npm run lint

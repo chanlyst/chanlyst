@@ -9,17 +9,19 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-0f7a55.svg)](LICENSE)
 [![Self-hostable](https://img.shields.io/badge/Self--hostable-docker%20compose%20up-0f7a55.svg)](#run-it)
-[![Tests](https://img.shields.io/badge/tests-446-0f7a55.svg)](tests)
+[![Tests](https://img.shields.io/badge/tests-441-0f7a55.svg)](tests)
 [![Docker quickstart](https://github.com/chanlyst/chanlyst/actions/workflows/docker.yml/badge.svg)](https://github.com/chanlyst/chanlyst/actions/workflows/docker.yml)
 
-<!-- 446 is what a clone of THIS repository reports, which is the only number a
-     reader can check. The private tree runs 441: it still has the internal
-     notes that two of those cases assert on, plus a suite about the SEO
-     keyword data that does not ship. Do not "correct" this to 441.
+<!-- 441 is what a clone of THIS repository reports, which is the only number a
+     reader can check. The private tree runs 449: it still has the suite that
+     asserts on the SEO keyword data, which does not ship. Do not "correct"
+     this to 449.
 
-     It has now drifted three times in one day, always because a test was added
-     and four separate sentences were not. The next person to touch it should
-     make `npm test` check the number instead of promising to remember. -->
+     Both numbers are measured by running the suite in each tree, not derived
+     from the other. This has now drifted four times, always because a test was
+     added and four separate sentences were not — it was reading 446 against a
+     real 438 for a while. The next person to touch it should make `npm test`
+     check the number instead of promising to remember. -->
 
 
 ### Find the places your paying customers already are — not the people.
@@ -161,7 +163,7 @@ underneath and Drizzle for the schema. The Docker image exists because "clone it
 and work out the Workers runtime" would lose most readers on the first evening.
 
 ```bash
-npm test     # typecheck, production build, and 446 tests — no network, no keys
+npm test     # typecheck, production build, and 441 tests — no network, no keys
 ```
 
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) has the data model and how the

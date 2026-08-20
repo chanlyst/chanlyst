@@ -1342,8 +1342,12 @@ export default function Home({
 
   /** Returns whether the product was persisted, so callers (the passport
    * modal) can leave edit mode only on success. */
-  async function saveProduct(product = editing) {
+  async function saveProduct(productArgument = editing) {
+    let product = productArgument;
     const saved = await saveProductApi(product);
+    if (saved.ok && saved.id && saved.id !== product.id) {
+      product = { ...product, id: saved.id };
+    }
     if (!saved.ok) {
       notify(
         saved.error === "plan_limit_reached"
