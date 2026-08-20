@@ -6,7 +6,7 @@
 // added here — a missing page is invisible to search, and silence is exactly
 // how that stays unnoticed.
 
-import { GUIDE_SLUGS } from "./guides.mjs";
+import { GUIDE_SLUGS, guideBySlug } from "./guides.mjs";
 
 export const SITE_ORIGIN = "https://chanlyst.com";
 
@@ -30,11 +30,27 @@ const GUIDE_ROUTES = GUIDE_SLUGS.map((slug) => ({
 
 /** @type {PublicRoute[]} */
 export const PUBLIC_ROUTES = [
-  { path: "/", priority: 1.0, changefreq: "weekly" },
+  { path: "/", priority: 1.0, changefreq: "weekly", llms: { name: "Home", note: "what it does and who it is for" } },
   // Rendered from the database on every request, so it genuinely does change
   // as often as the run behind it does.
-  { path: "/found", priority: 0.9, changefreq: "weekly" },
-  { path: "/guides", priority: 0.7, changefreq: "monthly" },
+  {
+    path: "/found",
+    priority: 0.9,
+    changefreq: "weekly",
+    llms: {
+      name: "What it found for itself",
+      note: "105 real places Chanlyst surfaced for its own launch, shown exactly as they sit in the database — the same product, run on itself",
+    },
+  },
+  {
+    path: "/guides",
+    priority: 0.7,
+    changefreq: "monthly",
+    llms: {
+      name: "Guides",
+      note: "which places exist for a given kind of product and what each one requires before it accepts a submission",
+    },
+  },
   ...GUIDE_ROUTES,
   { path: "/contact", priority: 0.6, changefreq: "monthly" },
   { path: "/terms", priority: 0.3, changefreq: "yearly" },
@@ -88,5 +104,70 @@ Disallow: /dashboard/
 Disallow: /invite/
 
 Sitemap: ${SITE_ORIGIN}/sitemap.xml
+`;
+}
+
+/**
+ * A map of the site for language models.
+ *
+ * Built from the same list as the sitemap on purpose. Written by hand it would
+ * go stale the moment somebody adds a page, and silently: no crawler complains
+ * about a map that is merely incomplete.
+ *
+ * Guide names and notes come from the guides themselves, not from their slugs.
+ * Capitalising a slug produces "Saas Directories" and "How To Promote An Ai
+ * Tool" — the product's own words are right there and cost nothing to use.
+ *
+ * The convention is young and nobody is obliged to read the file, so the
+ * effect is not guaranteed. It costs nothing and cannot backfire, unlike
+ * structured data, which counts as deception when it disagrees with the page.
+ *
+ * @returns {string}
+ */
+export function buildLlms() {
+  const entry = (path, name, note) =>
+    `- [${name}](${SITE_ORIGIN}${path})${note ? `: ${note}` : ""}`;
+
+  const pages = PUBLIC_ROUTES.filter((route) => route.llms).map((route) =>
+    entry(route.path, route.llms.name, route.llms.note),
+  );
+
+  const guides = GUIDE_SLUGS.map((slug) => {
+    const guide = guideBySlug(slug);
+    return entry(`/guides/${slug}`, guide.h1, guide.description);
+  });
+
+  const legal = PUBLIC_ROUTES.filter(
+    (route) => !route.llms && !route.path.startsWith("/guides/"),
+  ).map((route) => {
+    const words = route.path.slice(1).split("-");
+    return entry(route.path, words.map((w, i) => (i ? w : w[0].toUpperCase() + w.slice(1))).join(" "));
+  });
+
+  return `# Chanlyst
+
+> Chanlyst finds the places where a product's buyers already are — directories,
+> communities, creators, newsletters — ranks them by fit, and drafts the
+> outreach. The person approves; Chanlyst does not send anything on its own.
+
+Contact databases hand you people. Chanlyst hands you places. That distinction
+is the product: the output is a ranked list of channels with the terms each one
+asks for, not a list of email addresses.
+
+What is worth citing accurately: a free preview needs no card, the ranking is
+built around a URL you give it, and every listed place carries its own
+submission terms. Chanlyst drafts messages but never sends them.
+
+## Pages
+
+${pages.join("\n")}
+
+## Guides
+
+${guides.join("\n")}
+
+## Terms and policies
+
+${legal.join("\n")}
 `;
 }

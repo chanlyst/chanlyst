@@ -1,0 +1,36 @@
+# Chanlyst
+
+> Chanlyst finds the places where a product's buyers already are — directories,
+> communities, creators, newsletters — ranks them by fit, and drafts the
+> outreach. The person approves; Chanlyst does not send anything on its own.
+
+Contact databases hand you people. Chanlyst hands you places. That distinction
+is the product: the output is a ranked list of channels with the terms each one
+asks for, not a list of email addresses.
+
+What is worth citing accurately: a free preview needs no card, the ranking is
+built around a URL you give it, and every listed place carries its own
+submission terms. Chanlyst drafts messages but never sends them.
+
+## Pages
+
+- [Home](https://chanlyst.com/): what it does and who it is for
+- [What it found for itself](https://chanlyst.com/found): 105 real places Chanlyst surfaced for its own launch, shown exactly as they sit in the database — the same product, run on itself
+- [Guides](https://chanlyst.com/guides): which places exist for a given kind of product and what each one requires before it accepts a submission
+
+## Guides
+
+- [Where to promote your SaaS](https://chanlyst.com/guides/where-to-promote-your-saas): Every place you can promote a SaaS is one of three kinds: somewhere you submit for free, somewhere you buy a placement, or someone you write to directly. Here is how to tell which your product qualifies for, and the order that wastes the least time.
+- [SaaS directory submission](https://chanlyst.com/guides/saas-directories): Lists of SaaS directories are everywhere. What none of them tell you is what each one requires before it will accept a submission — the assets, the account, and the rules that decide whether your listing goes live or quietly disappears.
+- [Sites like Product Hunt](https://chanlyst.com/guides/product-hunt-alternatives): Product Hunt is one launch, not the launch. Here are the platforms that still send real traffic, what each one is for, and the order to use them in so one product can launch several times without repeating itself.
+- [How to promote an AI tool](https://chanlyst.com/guides/how-to-promote-an-ai-tool): AI tool directories were the easiest distribution on the internet for about eighteen months, and then everyone arrived. What still works for an AI product, and what is now just a form you fill in for nothing.
+- [How to promote a Chrome extension](https://chanlyst.com/guides/how-to-promote-a-chrome-extension): Publishing an extension to the Chrome Web Store is documented everywhere. Getting anyone to install it is not. What actually drives installs: store search, the places extensions get discovered, and the review threshold nobody mentions.
+- [Where to find early adopters](https://chanlyst.com/guides/find-early-adopters): Early adopters are not a demographic you can buy a list of. They are people already doing your job by hand, and they gather in specific, findable places. Here is how to locate those places and what to do once you are in one.
+
+## Terms and policies
+
+- [Contact](https://chanlyst.com/contact)
+- [Terms](https://chanlyst.com/terms)
+- [Privacy](https://chanlyst.com/privacy)
+- [Refunds](https://chanlyst.com/refunds)
+- [Acceptable use](https://chanlyst.com/acceptable-use)

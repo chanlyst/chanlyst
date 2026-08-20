@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import {
+import { buildLlms,
   EXCLUDED_ROUTES,
   PUBLIC_ROUTES,
   SITE_ORIGIN,
   buildRobots,
   buildSitemap,
 } from "../app/lib/public-routes.mjs";
-import { GUIDE_SLUGS } from "../app/lib/guides.mjs";
+import { GUIDE_SLUGS, guideBySlug } from "../app/lib/guides.mjs";
 
 /**
  * Every route the app actually serves under app/, minus the private trees.
@@ -82,4 +82,28 @@ test("the checked-in files match what the generator produces", () => {
   assert.ok(lastmod, "public/sitemap.xml has no lastmod");
   assert.equal(sitemap, buildSitemap(lastmod), "run node deploy/build-seo-files.mjs");
   assert.equal(readFileSync("public/robots.txt", "utf8"), buildRobots());
+});
+
+test("llms.txt lists every public page", () => {
+  // Written by hand this file goes stale the moment somebody adds a page, and
+  // silently: no crawler complains about a map that is merely incomplete.
+  const llms = buildLlms();
+  for (const route of PUBLIC_ROUTES) {
+    assert.ok(llms.includes(`${SITE_ORIGIN}${route.path})`), `${route.path} is missing from llms.txt`);
+  }
+});
+
+test("llms.txt names guides the way the guides name themselves", () => {
+  // Capitalising a slug produces "Saas Directories" and "How To Promote An Ai
+  // Tool". The product's own words are right there.
+  const llms = buildLlms();
+  for (const slug of GUIDE_SLUGS) {
+    assert.ok(llms.includes(`[${guideBySlug(slug).h1}]`), `${slug} is not named after its own heading`);
+  }
+  assert.ok(!llms.includes("Saas "), "slug-cased names leaked in");
+});
+
+test("the llms.txt on disk matches the generator", () => {
+  const onDisk = readFileSync("public/llms.txt", "utf8");
+  assert.equal(onDisk, buildLlms(), "run node deploy/build-seo-files.mjs");
 });
