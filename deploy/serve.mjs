@@ -200,6 +200,15 @@ const server = createServer(async (nodeRequest, nodeResponse) => {
       headers: nodeRequest.headers,
       body,
       duplex: "half",
+      // Hand the redirect back to the browser instead of following it here.
+      //
+      // dispatchFetch has fetch semantics, and fetch follows redirects. So when
+      // /api/auth/google/start answered 302 to accounts.google.com, this server
+      // quietly walked the redirect itself and returned Google's sign-in page —
+      // 880KB of it, under our own domain, with a 200. Every OAuth sign-in was
+      // broken in exactly that shape, and wrangler dev had never done it
+      // because it proxies rather than fetches.
+      redirect: "manual",
     });
     nodeResponse.writeHead(
       response.status,

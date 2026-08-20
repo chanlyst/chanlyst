@@ -22,7 +22,7 @@ npm test
 ```
 
 That is a typecheck, a production build and the whole suite in one command —
-436 tests, no network, no API keys. It has to pass.
+446 tests, no network, no API keys. It has to pass.
 
 (The private repository runs 440. The eight that do not travel check internal
 documents the publish script strips — they would fail here for the absence of

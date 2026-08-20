@@ -34,6 +34,23 @@ test("an untagged visit falls back to the referring host", () => {
   assert.equal(typedIn.medium, "none");
 });
 
+// The places this product is actually promoted by hand. A visit from one of
+// them arriving as a bare hostname would sit in the traffic table next to
+// "direct" and tell us nothing about which conversation sent it.
+test("the communities we post in are named, not left as hosts", () => {
+  const expected = {
+    "https://news.ycombinator.com/item?id=1": "hackernews",
+    "https://www.indiehackers.com/post/whatever": "indiehackers",
+    "https://www.producthunt.com/posts/x": "producthunt",
+    "https://old.reddit.com/r/SaaS/": "reddit",
+    "https://m.reddit.com/r/SaaS/": "reddit",
+  };
+
+  for (const [referer, source] of Object.entries(expected)) {
+    assert.equal(visitSource(new URLSearchParams(""), referer).source, source, referer);
+  }
+});
+
 // A referrer path can carry a search query or an identifier. We want to know
 // the visitor came from Reddit, not what they were reading there.
 test("a referrer keeps its host and loses everything else", () => {
@@ -85,4 +102,11 @@ test("the campaign is carried across the internal link", () => {
   assert.equal(carried.get("utm_campaign"), "founders_en");
   assert.equal(carried.get("ref"), null, "only campaign tags travel");
   assert.equal(forwardedCampaign({}), "", "an untagged visit adds no query");
+});
+
+// A domain that merely ends with a known name is not that place. Matching by
+// suffix would have made reddit.com.phish.example resolve to "reddit".
+test("a lookalike domain is not mistaken for the real one", () => {
+  const fake = visitSource(new URLSearchParams(""), "https://reddit.com.example.org/x");
+  assert.equal(fake.source, "reddit.com.example.org");
 });

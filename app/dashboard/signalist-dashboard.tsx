@@ -110,6 +110,7 @@ import Composer from "./sections/composer";
 import ContactsSection from "./sections/contacts-section";
 import IntegrationsSection from "./sections/integrations-section";
 import LaunchChecklist from "./sections/launch-checklist";
+import OnboardingTour from "./sections/onboarding-tour";
 import LeadsTable from "./sections/leads-table";
 import NewProductForm from "./sections/new-product-form";
 import OverviewMetrics from "./sections/overview-metrics";
@@ -2500,6 +2501,18 @@ export default function Home({
             {view === "products" && <button className="outline" onClick={() => setNewOpen(true)}>＋ {t.addProduct}</button>}
           </div>
         </header>
+
+        {/* Shown once per workspace, before anything else on the screen: the
+            first visit is the only moment when a person will sit through an
+            explanation, and by the second one they are here to work. */}
+        <OnboardingTour
+          locale={locale}
+          workspaceId={workspaceId}
+          ready={Boolean(workspaceId)}
+          billingConfigured={billingData.configured !== false}
+          hasSubscription={Boolean(billingData.plan)}
+          startCheckout={startCheckout}
+        />
 
         {view === "products" && <>
         <ProductPanel

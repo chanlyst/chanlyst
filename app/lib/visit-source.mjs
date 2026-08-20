@@ -48,7 +48,27 @@ const HOST_SOURCES = {
   "reddit.com": "reddit",
   "out.reddit.com": "reddit",
   "producthunt.com": "producthunt",
+  "indiehackers.com": "indiehackers",
 };
+
+/**
+ * The name behind a host, matching subdomains too: old.reddit.com and
+ * m.reddit.com are Reddit. Without this they became their own rows in the
+ * traffic table, splitting one community across three lines and reading as
+ * three small sources instead of one real one.
+ *
+ * Walks up the labels rather than matching a suffix, so a lookalike domain
+ * like reddit.com.example.org never resolves to "reddit".
+ */
+function knownSource(host) {
+  if (!host) return "";
+  const parts = host.split(".");
+  for (let i = 0; i + 1 < parts.length; i++) {
+    const candidate = HOST_SOURCES[parts.slice(i).join(".")];
+    if (candidate) return candidate;
+  }
+  return "";
+}
 
 /**
  * The source of a visit: the campaign tags when they survived the trip, the
@@ -63,7 +83,7 @@ export function visitSource(params, referer) {
 
   const host = referrerHost(referer);
   const taggedSource = get("utm_source");
-  const source = taggedSource || HOST_SOURCES[host] || host || "direct";
+  const source = taggedSource || knownSource(host) || host || "direct";
 
   return {
     source,

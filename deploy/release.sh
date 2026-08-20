@@ -63,9 +63,15 @@ ssh "$HOST" 'free_mb=$(df -Pm /opt | awk "NR==2 {print \$4}")
 
 echo "==> uploading release"
 ssh "$HOST" "mkdir -p '$RELEASE' '$STATE_DIR/backups'"
+# node_modules без ведущего слэша: с ним правило привязано к корню передачи,
+# и вложенные каталоги на сервер уезжали. video/node_modules — 577 МБ сборочных
+# артефактов под macOS ARM, включая headless-браузер и кэш webpack: на Linux
+# они бесполезны, а релиз из-за них весит 1,8 ГБ вместо 45 МБ и заливается
+# сутки на медленном канале. Зависимости приложения ставит npm ci ниже.
 rsync -a --delete \
-  --exclude /.git --exclude /node_modules --exclude /.wrangler \
+  --exclude /.git --exclude node_modules --exclude .wrangler \
   --exclude /.next --exclude /outputs --exclude /work \
+  --exclude /video/out \
   ./ "$HOST:$RELEASE/"
 # A release can be launched from a mktemp-backed clean worktree whose root is
 # deliberately 0700. rsync preserves that mode on the destination root, which
@@ -175,5 +181,12 @@ PRUNE
 
 echo "==> public check"
 curl -fsS -o /dev/null -w "https://chanlyst.com -> %{http_code}\n" https://chanlyst.com || true
+
+# Telling the engines the pages changed, now that the new release is the one
+# they would fetch. Ran by hand before, which means it mostly did not run.
+# Never fatal: a release that is live and answering is not a failed release
+# because a third-party ping timed out.
+echo "==> notifying IndexNow (Bing, Yandex, Seznam, Naver)"
+node deploy/indexnow.mjs || echo "  WARN: IndexNow ping failed, the release is fine"
 echo "==> done. Rollback: ssh $HOST 'ln -sfn $APP_ROOT/releases/<old> $APP_ROOT/current && systemctl restart chanlyst'"
 echo "    Reminder: push the same commit to the Sites repository (runbook steps 12-13)."
